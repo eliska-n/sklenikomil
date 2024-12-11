@@ -1,6 +1,7 @@
 import asab.web
 import asab.web.rest
 import asab.metrics
+import asab.storage
 
 from .greenhouse import GreenhouseService, GreenhouseHandler
 
@@ -8,6 +9,10 @@ from .greenhouse import GreenhouseService, GreenhouseHandler
 asab.Config.add_defaults({
 	"web": {
 		"listen": "7777",
+	},
+	"asab:storage": {
+		"type": "mongodb",
+		"mongodb_database": "sklenikomil",
 	},
 })
 
@@ -19,6 +24,7 @@ class SklenikomilApp(asab.Application):
 
 		self.add_module(asab.web.Module)
 		self.add_module(asab.metrics.Module)
+		self.add_module(asab.storage.Module)
 
 		# Locate the web service
 		self.WebService = self.get_service("asab.WebService")
