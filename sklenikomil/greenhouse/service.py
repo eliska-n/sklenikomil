@@ -1,5 +1,4 @@
 import logging
-import uuid
 
 import asab
 
@@ -13,16 +12,21 @@ class GreenhouseService(asab.Service):
 		self.StorageService = app.get_service("asab.StorageService")
 
 	async def get_greenhouse(self, greenhouse_id, greenhouse_time):
+		greenhouse_size = 6 * 9  # 6 rows, 9 columns TODO: read this from the greenhouse collection
 		coll = await self.StorageService.collection("planted")
 		cursor = coll.find({
 			"greenhouse_id": greenhouse_id,
 			"week_planted": {"$lte": greenhouse_time},
 			"week_of_harvest": {"$gte": greenhouse_time}
 		})
-		greenhouse = []
+		greenhouse = [{"tile_id": i, "planted": {}} for i in range(greenhouse_size)]
 		while await cursor.fetch_next:
 			obj = cursor.next_object()
-			greenhouse.append({k: v for k, v in obj.items() if not k.startswith("_")})
+			tile_id = int(obj.pop("tile_id"))
+			assert len(greenhouse[tile_id]["planted"]) == 0
+			assert "plant_id" in obj
+			assert tile_id <= greenhouse_size
+			greenhouse[tile_id]["planted"] = {k: v for k, v in obj.items() if not k.startswith("_")}
 		return greenhouse
 
 
@@ -42,20 +46,3 @@ class GreenhouseService(asab.Service):
 		upsertor.set("plant_id", plant_id)
 		upsertor.set("week_of_harvest", week_of_harvest)
 		return await upsertor.execute()
-
-	async def create_plant(self, description: dict):
-		# Generate a unique plant_id based on the display name and a UUID, omit letters with diacritics
-		plant_id = description.get("display_name", "").lower().replace(" ", "_").encode('ascii', 'ignore').decode('ascii') + uuid.uuid4().hex
-		return await self.upsert_plant(plant_id, description)
-
-
-	async def upsert_plant(self, plant_id: str, description: dict):
-		upsertor = self.StorageService.upsertor("plants", plant_id)
-		for key, value in description.items():
-			upsertor.set(key, value)
-		await upsertor.execute()
-
-		return plant_id
-
-	async def create_advice(self, plant_id: str, week_from_seed: int, advice: dict):
-		pass

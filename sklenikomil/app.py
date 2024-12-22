@@ -4,6 +4,7 @@ import asab.metrics
 import asab.storage
 
 from .greenhouse import GreenhouseService, GreenhouseHandler
+from .herbarium import HerbariumService, HerbariumHandler
 
 
 asab.Config.add_defaults({
@@ -33,3 +34,6 @@ class SklenikomilApp(asab.Application):
 
 		self.GreenhouseService = GreenhouseService(self)
 		self.GreenhouseHandler = GreenhouseHandler(self)
+
+		self.HerbariumService = HerbariumService(self)
+		self.HerbariumHandler = HerbariumHandler(self)
