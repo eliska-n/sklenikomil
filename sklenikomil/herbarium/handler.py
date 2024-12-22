@@ -19,6 +19,7 @@ class HerbariumHandler(object):
 		web_app.router.add_get('/herbarium', self.list)
 		web_app.router.add_post('/herbarium', self.create_plant)
 		web_app.router.add_post('/herbarium/{plant_id}', self.update_plant)
+		web_app.router.add_delete('/herbarium/{plant_id}', self.delete_plant)
 		# web_app.router.add_get('/plant/{plant_id}', self.get_plant)
 		# web_app.router.add_get('/plants/', self.list_plants)
 
@@ -49,5 +50,11 @@ class HerbariumHandler(object):
 	})
 	async def update_plant(self, request, json_data):
 		plant_id = request.match_info['plant_id']
-		plant_id = self.HerbariumService.update_plant(plant_id, json_data)
-		return asab.web.rest.json_response(request, {"result": "OK", "plant_id": plant_id})
+		await self.HerbariumService.update_plant(plant_id, json_data)
+		return asab.web.rest.json_response(request, {"result": "OK"})
+
+
+	async def delete_plant(self, request):
+		plant_id = request.match_info['plant_id']
+		await self.HerbariumService.delete_plant(plant_id)
+		return asab.web.rest.json_response(request, {"result": "OK"})

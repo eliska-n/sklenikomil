@@ -33,5 +33,9 @@ class HerbariumService(asab.Service):
 		await upsertor.execute()
 		return plant_id
 
+	async def delete_plant(self, plant_id: str):
+		coll = await self.StorageService.collection("plants")
+		await coll.delete_one({"_id": plant_id})
+
 	async def create_advice(self, plant_id: str, week_from_seed: int, advice: dict):
 		pass
