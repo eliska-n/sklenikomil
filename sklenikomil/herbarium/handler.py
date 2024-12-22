@@ -18,7 +18,7 @@ class HerbariumHandler(object):
 
 		web_app.router.add_get('/herbarium', self.list)
 		web_app.router.add_post('/herbarium', self.create_plant)
-		# web_app.router.add_post('/plant/{plant_id}', self.update_plant)
+		web_app.router.add_post('/herbarium/{plant_id}', self.update_plant)
 		# web_app.router.add_get('/plant/{plant_id}', self.get_plant)
 		# web_app.router.add_get('/plants/', self.list_plants)
 
@@ -37,4 +37,17 @@ class HerbariumHandler(object):
 	})
 	async def create_plant(self, request, json_data):
 		plant_id = await self.HerbariumService.create_plant(json_data)
+		return asab.web.rest.json_response(request, {"result": "OK", "plant_id": plant_id})
+
+
+	@asab.web.rest.json_schema_handler({
+		"type": "object",
+		"properties": {
+			"display_name": {"type": "string"},
+			"seed_to_harvest_days": {"type": "integer"},
+		},
+	})
+	async def update_plant(self, request, json_data):
+		plant_id = request.match_info['plant_id']
+		plant_id = self.HerbariumService.update_plant(plant_id, json_data)
 		return asab.web.rest.json_response(request, {"result": "OK", "plant_id": plant_id})

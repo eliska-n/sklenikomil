@@ -18,19 +18,19 @@ class HerbariumService(asab.Service):
 		res = await cursor.to_list()
 		return res
 
-
 	async def create_plant(self, description: dict):
 		# Generate a unique plant_id based on the display name and a UUID, omit letters with diacritics
 		plant_id = description.get("display_name", "").lower().replace(" ", "_").encode('ascii', 'ignore').decode('ascii') + uuid.uuid4().hex
 		return await self.upsert_plant(plant_id, description)
 
+	async def update_plant(self, plant_id: str, description: dict):
+		return await self.upsert_plant(plant_id, description)
 
 	async def upsert_plant(self, plant_id: str, description: dict):
 		upsertor = self.StorageService.upsertor("plants", plant_id)
 		for key, value in description.items():
 			upsertor.set(key, value)
 		await upsertor.execute()
-
 		return plant_id
 
 	async def create_advice(self, plant_id: str, week_from_seed: int, advice: dict):
