@@ -20,8 +20,6 @@ class HerbariumHandler(object):
 		web_app.router.add_post('/herbarium', self.create_plant)
 		web_app.router.add_post('/herbarium/{plant_id}', self.update_plant)
 		web_app.router.add_delete('/herbarium/{plant_id}', self.delete_plant)
-		# web_app.router.add_get('/plant/{plant_id}', self.get_plant)
-		# web_app.router.add_get('/plants/', self.list_plants)
 
 
 	async def list(self, request):
@@ -32,9 +30,26 @@ class HerbariumHandler(object):
 	@asab.web.rest.json_schema_handler({
 		"type": "object",
 		"properties": {
-			"display_name": {"type": "string"},
+			"display": {"type": "string"},
 			"seed_to_harvest_days": {"type": "integer"},
+			"categories": {"type": "array", "items": {"type": "string"}},
+			"icon": {"type": "string"},
+			"literature": {"type": "array", "items": {"type": "string"}},
+			"detail": {"type": "string"},
+			"tips": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"properties": {
+						"week_from_seed": {"type": "integer"},
+						"tip": {"type": "string"},
+						"category": {"type": "string"},
+					},
+					"required": ["week_from_seed", "tip"],
+				}
+			},
 		},
+		"required": ["display", "seed_to_harvest_days"],
 	})
 	async def create_plant(self, request, json_data):
 		plant_id = await self.HerbariumService.create_plant(json_data)
@@ -44,7 +59,7 @@ class HerbariumHandler(object):
 	@asab.web.rest.json_schema_handler({
 		"type": "object",
 		"properties": {
-			"display_name": {"type": "string"},
+			"display": {"type": "string"},
 			"seed_to_harvest_days": {"type": "integer"},
 		},
 	})
