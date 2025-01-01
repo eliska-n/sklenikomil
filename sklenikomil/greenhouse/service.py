@@ -12,24 +12,27 @@ class GreenhouseService(asab.Service):
 		self.StorageService = app.get_service("asab.StorageService")
 
 	async def get_greenhouse(self, greenhouse_id, greenhouse_time):
-		coll = await self.StorageService.collection("planted")
-		cursor = coll.find({
-			"greenhouse_id": greenhouse_id,
-			"week_planted": {"$lte": greenhouse_time},
-			"week_of_harvest": {"$gte": greenhouse_time}
-		})
-		res = await cursor.to_list()
-		plant_ids = [i["plant_id"] for i in res]
+		greenhouse_tiles = await self.get_greenhouse_tiles(greenhouse_id, greenhouse_time)
+		plant_ids = [i["plant_id"] for i in greenhouse_tiles]
 		coll_herbarium = await self.StorageService.collection("herbarium")
 		cursor_herbarium = coll_herbarium.find({"_id": {"$in": plant_ids}})
 		res_herbarium = await cursor_herbarium.to_list()
 		herbarium_dict = {herb["_id"]: herb for herb in res_herbarium}
 		res = [
 			{**plant, **{"plant": herbarium_dict[plant["plant_id"]]}}
-			for plant in res
+			for plant in greenhouse_tiles
 			if plant["plant_id"] in herbarium_dict
 		]
 		return res
+
+	async def get_greenhouse_tiles(self, greenhouse_id, greenhouse_time):
+		coll = await self.StorageService.collection("planted")
+		cursor = coll.find({
+			"greenhouse_id": greenhouse_id,
+			"week_planted": {"$lte": greenhouse_time},
+			"week_of_harvest": {"$gte": greenhouse_time}
+		})
+		return await cursor.to_list()
 
 
 	async def plant_new(self, greenhouse_id: str, tile_id: str, greenhouse_time: int, data: str):
