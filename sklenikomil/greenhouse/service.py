@@ -12,27 +12,29 @@ class GreenhouseService(asab.Service):
 		self.StorageService = app.get_service("asab.StorageService")
 
 	async def get_greenhouse(self, greenhouse_id, greenhouse_time):
-		greenhouse_size = 6 * 9  # 6 rows, 9 columns TODO: read this from the greenhouse collection
 		coll = await self.StorageService.collection("planted")
 		cursor = coll.find({
 			"greenhouse_id": greenhouse_id,
 			"week_planted": {"$lte": greenhouse_time},
 			"week_of_harvest": {"$gte": greenhouse_time}
 		})
-		greenhouse = [{"tile_id": i, "planted": {}} for i in range(greenhouse_size)]
-		while await cursor.fetch_next:
-			obj = cursor.next_object()
-			tile_id = int(obj.pop("tile_id"))
-			assert len(greenhouse[tile_id]["planted"]) == 0
-			assert "plant_id" in obj
-			assert tile_id <= greenhouse_size
-			greenhouse[tile_id]["planted"] = {k: v for k, v in obj.items() if not k.startswith("_")}
-		return greenhouse
+		res = await cursor.to_list()
+		plant_ids = [i["plant_id"] for i in res]
+		coll_herbarium = await self.StorageService.collection("herbarium")
+		cursor_herbarium = coll_herbarium.find({"_id": {"$in": plant_ids}})
+		res_herbarium = await cursor_herbarium.to_list()
+		herbarium_dict = {herb["_id"]: herb for herb in res_herbarium}
+		res = [
+			{**plant, **{"plant": herbarium_dict[plant["plant_id"]]}}
+			for plant in res
+			if plant["plant_id"] in herbarium_dict
+		]
+		return res
 
 
 	async def plant_new(self, greenhouse_id: str, tile_id: str, greenhouse_time: int, data: str):
 		plant_id = data["plant_id"]
-		plant = await self.StorageService.get("plants", plant_id)
+		plant = await self.StorageService.get("herbarium", plant_id)
 		if plant is None:
 			raise RuntimeError("Plant not found")
 		seed_to_harvest_days = plant.get("seed_to_harvest_days")

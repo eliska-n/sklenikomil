@@ -17,6 +17,7 @@ class HerbariumHandler(object):
 		web_app = app.WebContainer.WebApp
 
 		web_app.router.add_get('/herbarium', self.list)
+		web_app.router.add_get('/herbarium/{plant_id}', self.get_plant)
 		web_app.router.add_post('/herbarium', self.create_plant)
 		web_app.router.add_post('/herbarium/{plant_id}', self.update_plant)
 		web_app.router.add_delete('/herbarium/{plant_id}', self.delete_plant)
@@ -26,11 +27,17 @@ class HerbariumHandler(object):
 		data = await self.HerbariumService.list()
 		return asab.web.rest.json_response(request, {"result": "OK", "data": data})
 
+	async def get_plant(self, request):
+		plant_id = request.match_info['plant_id']
+		data = await self.HerbariumService.get_plant(plant_id)
+		return asab.web.rest.json_response(request, {"result": "OK", "data": data})
+
 
 	@asab.web.rest.json_schema_handler({
 		"type": "object",
 		"properties": {
 			"display": {"type": "string"},
+			"latin": {"type": "string"},
 			"seed_to_harvest_days": {"type": "integer"},
 			"categories": {"type": "array", "items": {"type": "string"}},
 			"icon": {"type": "string"},

@@ -30,7 +30,7 @@ class GreenhouseHandler(object):
 		week = request.query.get('week')
 		year = request.query.get('year')
 		if week is None or year is None:
-			return asab.web.rest.json_response(request, {"result": "ERROR", "error": "week and year must be provided"})
+			return asab.web.rest.json_response(request, {"result": "ERROR", "error": "week and year must be provided"}, status=400)
 		greenhouse_time = to_greenhouse_time(int(week), int(year))
 		greenhouse = await self.GreenhouseService.get_greenhouse(greenhouse_id, greenhouse_time)
 		return asab.web.rest.json_response(request, {"result": "OK", "data": greenhouse})
@@ -47,20 +47,17 @@ class GreenhouseHandler(object):
 	@asab.web.rest.json_schema_handler({
 		"type": "object",
 		"properties": {
-			# "tile_id": {"type": "integer"},
+			"tile_id": {"type": "integer"},
 			"plant_id": {"type": "string"},
+			"week": {"type": "integer"},
+			"year": {"type": "integer"},
 		},
 	})
 	async def plant_new(self, request, json_data):
 		# greenhouse_id = request.match_info['greenhouse_id']
 		greenhouse_id = "eliska"
-		week = request.query.get('week')
-		year = request.query.get('year')
-		tile_id = request.query.get('tile_id')
-		if week is None or year is None:
-			return asab.web.rest.json_response(request, {"result": "ERROR", "error": "week and year must be provided"})
-		selected_week = to_greenhouse_time(int(week), int(year))
-		planted = await self.GreenhouseService.plant_new(greenhouse_id, tile_id, selected_week, json_data)
+		greenhouse_time = to_greenhouse_time(json_data["week"], json_data["year"])
+		planted = await self.GreenhouseService.plant_new(greenhouse_id, json_data["tile_id"], greenhouse_time, json_data)
 		return asab.web.rest.json_response(request, {"result": "OK", "planted": planted})
 
 	async def create_greenhouse(self, request):
