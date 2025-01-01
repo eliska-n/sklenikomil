@@ -9,8 +9,9 @@ class TipsService(asab.Service):
 
 	def __init__(self, app, service_name='TipsService'):
 		super().__init__(app, service_name)
-		self.GreenhouseService = app.GreenhouseService
 		self.StorageService = app.get_service("asab.StorageService")
+		self.HerbariumService = app.HerbariumService
+		self.GreenhouseService = app.GreenhouseService
 
 	async def list_tips(self, greenhouse_id, greenhouse_time):
 		greenhouse_tiles = await self.GreenhouseService.get_greenhouse_tiles(greenhouse_id, greenhouse_time)
@@ -28,7 +29,8 @@ class TipsService(asab.Service):
 		res = [
 			{
 				"plant_id": plant_id,
-				"tips": tips
+				"tips": tips,
+				"plant": await self.HerbariumService.get_plant(plant_id)
 			}
 			for plant_id, tips in tips_by_plants.items()
 			if len(tips) > 0
