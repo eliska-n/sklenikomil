@@ -24,12 +24,15 @@ class TipsService(asab.Service):
 				"week_from_seed": greenhouse_time - tile["week_planted"]
 			})
 			if plant_id not in tips_by_plants:
-				tips_by_plants[plant_id] = []
-			tips_by_plants[plant_id].extend(await cursor.to_list())
+				tips_by_plants[plant_id] = {}
+			tips = await cursor.to_list()
+			for tip in tips:
+				if tip["_id"] not in tips_by_plants[plant_id]:  # Deduplicate tips
+					tips_by_plants[plant_id][tip["_id"]] = tip
 		res = [
 			{
 				"plant_id": plant_id,
-				"tips": tips,
+				"tips": list(tips.values()),
 				"plant": await self.HerbariumService.get_plant(plant_id)
 			}
 			for plant_id, tips in tips_by_plants.items()
