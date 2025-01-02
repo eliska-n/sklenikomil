@@ -6,6 +6,7 @@ import asab.storage
 from .greenhouse import GreenhouseService, GreenhouseHandler
 from .herbarium import HerbariumService, HerbariumHandler
 from .tips import TipsService, TipsHandler
+from .image import ImageService, ImageHandler
 
 
 asab.Config.add_defaults({
@@ -16,6 +17,9 @@ asab.Config.add_defaults({
 		"type": "mongodb",
 		"mongodb_database": "sklenikomil",
 	},
+	"image": {
+		"storage_path": "./images",
+	}
 })
 
 
@@ -41,3 +45,6 @@ class SklenikomilApp(asab.Application):
 
 		self.TipsService = TipsService(self)
 		self.TipsHandler = TipsHandler(self)
+
+		self.ImageService = ImageService(self)
+		self.ImageHandler = ImageHandler(self)
