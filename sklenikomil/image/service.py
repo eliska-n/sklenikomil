@@ -11,7 +11,7 @@ class ImageService(asab.Service):
 
 	def __init__(self, app, service_name='ImageService'):
 		super().__init__(app, service_name)
-		self.image_storage_path = app.Config['image']['storage_path']
+		self.image_storage_path = asab.Config['image']['storage_path']
 
 	def get_image(self, image_name):
 		image_path = os.path.join(self.image_storage_path, image_name)
