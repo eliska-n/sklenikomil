@@ -28,10 +28,12 @@ class HerbariumService(asab.Service):
 		return await self.upsert_plant(plant_id, description)
 
 	async def update_plant(self, plant_id: str, description: dict):
-		return await self.upsert_plant(plant_id, description)
+		version = description.pop("_v")
+		description.pop("_id", None)
+		return await self.upsert_plant(plant_id, description, version)
 
-	async def upsert_plant(self, plant_id: str, description: dict):
-		upsertor = self.StorageService.upsertor("herbarium", plant_id)
+	async def upsert_plant(self, plant_id: str, description: dict, version=0):
+		upsertor = self.StorageService.upsertor("herbarium", plant_id, version)
 		for key, value in description.items():
 			upsertor.set(key, value)
 		await upsertor.execute()
