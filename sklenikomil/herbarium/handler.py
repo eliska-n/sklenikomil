@@ -43,18 +43,6 @@ class HerbariumHandler(object):
 			"icon": {"type": "string"},
 			"literature": {"type": "array", "items": {"type": "string"}},
 			"detail": {"type": "string"},
-			"tips": {
-				"type": "array",
-				"items": {
-					"type": "object",
-					"properties": {
-						"week_from_seed": {"type": "integer"},
-						"tip": {"type": "string"},
-						"category": {"type": "string"},
-					},
-					"required": ["week_from_seed", "tip"],
-				}
-			},
 		},
 		"required": ["display", "seed_to_harvest_days"],
 	})
@@ -67,7 +55,7 @@ class HerbariumHandler(object):
 		"type": "object",
 		"properties": {
 			"display": {"type": "string"},
-			"seed_to_harvest_days": {"type": "integer"},
+			"seed_to_harvest_days": {"type": ["integer", "string"]},
 		},
 	})
 	async def update_plant(self, request, json_data):

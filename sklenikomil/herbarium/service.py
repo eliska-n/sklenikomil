@@ -11,6 +11,7 @@ class HerbariumService(asab.Service):
 	def __init__(self, app, service_name='HerbariumService'):
 		super().__init__(app, service_name)
 		self.StorageService = app.get_service("asab.StorageService")
+		self.App = app
 
 	async def list(self):
 		coll = await self.StorageService.collection("herbarium")
@@ -42,6 +43,4 @@ class HerbariumService(asab.Service):
 	async def delete_plant(self, plant_id: str):
 		coll = await self.StorageService.collection("herbarium")
 		await coll.delete_one({"_id": plant_id})
-
-	async def create_advice(self, plant_id: str, week_from_seed: int, advice: dict):
-		pass
+		await self.App.TipsService.delete_plant_tips(plant_id)

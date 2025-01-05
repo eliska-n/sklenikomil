@@ -1,4 +1,5 @@
 import logging
+import uuid
 
 import asab
 
@@ -13,7 +14,7 @@ class TipsService(asab.Service):
 		self.HerbariumService = app.HerbariumService
 		self.GreenhouseService = app.GreenhouseService
 
-	async def list_tips(self, greenhouse_id, greenhouse_time):
+	async def list_greenhouse_tips(self, greenhouse_id, greenhouse_time):
 		greenhouse_tiles = await self.GreenhouseService.get_greenhouse_tiles(greenhouse_id, greenhouse_time)
 		tips_by_plants = {}
 		for tile in greenhouse_tiles:
@@ -39,3 +40,38 @@ class TipsService(asab.Service):
 			if len(tips) > 0
 		]
 		return res
+
+
+	async def list_plant_tips(self, plant_id):
+		coll = await self.StorageService.collection("tips")
+		cursor = coll.find({"plant_id": plant_id})
+		return await cursor.to_list()
+
+	async def create_plant_tip(self, plant_id: str, tip: dict):
+		# Generate a unique plant_id based on the display name and a UUID, omit letters with diacritics
+		tip_id = uuid.uuid4().hex
+		tip["plant_id"] = plant_id
+		return await self.upsert_tip(tip_id, tip)
+
+	async def update_tip(self, plant_id, tip_id: str, tip: dict):
+		version = tip.pop("_v")
+		tip.pop("_id", None)
+		tip["plant_id"] = plant_id
+		return await self.upsert_tip(tip_id, tip, version)
+
+	async def upsert_tip(self, tip_id: str, tip: dict, version=0):
+		upsertor = self.StorageService.upsertor("tips", tip_id, version)
+		for key, value in tip.items():
+			upsertor.set(key, value)
+		await upsertor.execute()
+		return tip_id
+
+	async def delete_tip(self, plant_id: str, tip_id: str):
+		coll = await self.StorageService.collection("tips")
+		await coll.delete_one({"_id": tip_id, "plant_id": plant_id})
+		return tip_id
+
+	async def delete_plant_tips(self, plant_id: str):
+		coll = await self.StorageService.collection("tips")
+		await coll.delete_many({"plant_id": plant_id})
+		return plant_id
