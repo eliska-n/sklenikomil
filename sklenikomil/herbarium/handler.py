@@ -4,6 +4,8 @@ import asab
 import asab.web
 import asab.web.rest
 
+from .plant_json_schema import plant_json_schema
+
 ###
 
 L = logging.getLogger(__name__)
@@ -33,31 +35,13 @@ class HerbariumHandler(object):
 		return asab.web.rest.json_response(request, {"result": "OK", "data": data})
 
 
-	@asab.web.rest.json_schema_handler({
-		"type": "object",
-		"properties": {
-			"display": {"type": "string"},
-			"latin": {"type": "string"},
-			"seed_to_harvest_days": {"type": "integer"},
-			"categories": {"type": "array", "items": {"type": "string"}},
-			"icon": {"type": "string"},
-			"literature": {"type": "array", "items": {"type": "string"}},
-			"detail": {"type": "string"},
-		},
-		"required": ["display", "seed_to_harvest_days"],
-	})
+	@asab.web.rest.json_schema_handler(plant_json_schema)
 	async def create_plant(self, request, json_data):
 		plant_id = await self.HerbariumService.create_plant(json_data)
 		return asab.web.rest.json_response(request, {"result": "OK", "plant_id": plant_id})
 
 
-	@asab.web.rest.json_schema_handler({
-		"type": "object",
-		"properties": {
-			"display": {"type": "string"},
-			"seed_to_harvest_days": {"type": ["integer", "string"]},
-		},
-	})
+	@asab.web.rest.json_schema_handler(plant_json_schema)
 	async def update_plant(self, request, json_data):
 		plant_id = request.match_info['plant_id']
 		await self.HerbariumService.update_plant(plant_id, json_data)
