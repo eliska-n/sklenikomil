@@ -45,7 +45,9 @@ class TipsService(asab.Service):
 	async def list_plant_tips(self, plant_id):
 		coll = await self.StorageService.collection("tips")
 		cursor = coll.find({"plant_id": plant_id})
-		return await cursor.to_list()
+		tips = await cursor.to_list()
+		tips.sort(key=lambda x: x["week_from_seed"])
+		return tips
 
 	async def create_plant_tip(self, plant_id: str, tip: dict):
 		# Generate a unique plant_id based on the display name and a UUID, omit letters with diacritics
