@@ -55,7 +55,7 @@ class TipsService(asab.Service):
 		tip["plant_id"] = plant_id
 		return await self.upsert_tip(tip_id, tip)
 
-	async def update_tip(self, plant_id, tip_id: str, tip: dict):
+	async def update_plant_tip(self, plant_id, tip_id: str, tip: dict):
 		version = tip.pop("_v")
 		tip.pop("_id", None)
 		tip["plant_id"] = plant_id
