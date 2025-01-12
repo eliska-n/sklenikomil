@@ -15,7 +15,7 @@ class TipsService(asab.Service):
 		self.GreenhouseService = app.GreenhouseService
 
 	async def list_greenhouse_tips(self, greenhouse_id, greenhouse_time):
-		greenhouse_tiles = await self.GreenhouseService.get_greenhouse_tiles(greenhouse_id, greenhouse_time)
+		greenhouse_tiles = await self.GreenhouseService.get_greenhouse_tiles_pre_grow(greenhouse_id, greenhouse_time)
 		tips_by_plants = {}
 		for tile in greenhouse_tiles:
 			plant_id = tile["plant_id"]

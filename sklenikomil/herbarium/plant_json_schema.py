@@ -4,6 +4,8 @@ plant_json_schema = {
 		"display": {"type": "string"},
 		"latin": {"type": "string"},
 		"seed_to_harvest_days": {"type": "integer"},
+		"pre_grow_days": {"type": "integer"},
+		"seed_ranges": {"type": "array", "items": {"type": "array", "items": {"type": "integer"}}},
 		"categories": {"type": "array", "items": {"type": "string"}},
 		"icon": {"type": "string"},
 		"literature": {"type": "array", "items": {"type": "string"}},

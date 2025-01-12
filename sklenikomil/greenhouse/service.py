@@ -34,6 +34,14 @@ class GreenhouseService(asab.Service):
 		})
 		return await cursor.to_list()
 
+	async def get_greenhouse_tiles_pre_grow(self, greenhouse_id, greenhouse_time):
+		coll = await self.StorageService.collection("planted")
+		cursor = coll.find({
+			"greenhouse_id": greenhouse_id,
+			"week_of_pre_grow": {"$lte": greenhouse_time},
+			"week_of_harvest": {"$gte": greenhouse_time}
+		})
+		return await cursor.to_list()
 
 	async def plant_new(self, greenhouse_id: str, tile_id: str, greenhouse_time: int, data: str):
 		plant_id = data["plant_id"]
@@ -44,10 +52,16 @@ class GreenhouseService(asab.Service):
 		if seed_to_harvest_days is None:
 			raise RuntimeError("Plant has no seed_to_harvest_days")
 		week_of_harvest = greenhouse_time + seed_to_harvest_days // 7
+		pre_grow_days = plant.get("pre_grow_days")
+		if pre_grow_days is not None:
+			week_of_pre_grow = greenhouse_time - pre_grow_days // 7
+		else:
+			week_of_pre_grow = greenhouse_time
 		upsertor = self.StorageService.upsertor("planted")
 		upsertor.set("greenhouse_id", greenhouse_id)
 		upsertor.set("tile_id", tile_id)
 		upsertor.set("week_planted", greenhouse_time)
 		upsertor.set("plant_id", plant_id)
 		upsertor.set("week_of_harvest", week_of_harvest)
+		upsertor.set("week_of_pre_grow", week_of_pre_grow)
 		return await upsertor.execute()
