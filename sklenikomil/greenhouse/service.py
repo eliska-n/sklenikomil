@@ -57,6 +57,13 @@ class GreenhouseService(asab.Service):
 			week_of_pre_grow = greenhouse_time - pre_grow_days // 7
 		else:
 			week_of_pre_grow = greenhouse_time
+		coll = await self.StorageService.collection("planted")
+		existing_plant = await coll.find_one({
+			"tile_id": tile_id,
+			"week_planted": {"$gt": greenhouse_time, "$lt": week_of_harvest}
+		})
+		if existing_plant is not None:
+			raise TileAlreadyPlantedException(tile_id, greenhouse_time, week_of_harvest)
 		upsertor = self.StorageService.upsertor("planted")
 		upsertor.set("greenhouse_id", greenhouse_id)
 		upsertor.set("tile_id", tile_id)
@@ -65,3 +72,12 @@ class GreenhouseService(asab.Service):
 		upsertor.set("week_of_harvest", week_of_harvest)
 		upsertor.set("week_of_pre_grow", week_of_pre_grow)
 		return await upsertor.execute()
+
+
+
+class TileAlreadyPlantedException(Exception):
+	def __init__(self, tile_id, greenhouse_time, week_of_harvest):
+		super().__init__(f"Tile {tile_id} is already planted between {greenhouse_time} and {week_of_harvest}")
+		self.tile_id = tile_id
+		self.greenhouse_time = greenhouse_time
+		self.week_of_harvest = week_of_harvest

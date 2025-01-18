@@ -5,6 +5,7 @@ import asab.web
 import asab.web.rest
 
 from ..utils import to_greenhouse_time
+from .service import TileAlreadyPlantedException
 
 ###
 
@@ -57,7 +58,10 @@ class GreenhouseHandler(object):
 		# greenhouse_id = request.match_info['greenhouse_id']
 		greenhouse_id = "eliska"
 		greenhouse_time = to_greenhouse_time(json_data["week"], json_data["year"])
-		planted = await self.GreenhouseService.plant_new(greenhouse_id, json_data["tile_id"], greenhouse_time, json_data)
+		try:
+			planted = await self.GreenhouseService.plant_new(greenhouse_id, json_data["tile_id"], greenhouse_time, json_data)
+		except TileAlreadyPlantedException:
+			return asab.web.rest.json_response(request, {"result": "ERROR", "error": "Tile already planted"}, status=400)
 		return asab.web.rest.json_response(request, {"result": "OK", "planted": planted})
 
 	async def create_greenhouse(self, request):
