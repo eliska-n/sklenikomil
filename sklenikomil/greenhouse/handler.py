@@ -25,6 +25,7 @@ class GreenhouseHandler(object):
 		web_app.router.add_get('/greenhouse/{greenhouse_id}', self.show_greenhouse)
 		web_app.router.add_put('/greenhouse/create', self.create_greenhouse)  # TODO: create all tiles
 		web_app.router.add_post('/greenhouse/plant_new', self.plant_new)
+		web_app.router.add_delete('/greenhouse/planted/{planted_id}', self.delete_planted)
 
 	async def show_greenhouse(self, request):
 		greenhouse_id = request.match_info['greenhouse_id']
@@ -67,3 +68,8 @@ class GreenhouseHandler(object):
 	async def create_greenhouse(self, request):
 		greenhouse_id = await self.GreenhouseService.create_greenhouse()
 		return asab.web.rest.json_response(request, {"result": "OK", "greenhouse_id": greenhouse_id})
+
+	async def delete_planted(self, request):
+		planted_id = request.match_info['planted_id']
+		await self.GreenhouseService.delete_planted(planted_id)
+		return asab.web.rest.json_response(request, {"result": "OK"})

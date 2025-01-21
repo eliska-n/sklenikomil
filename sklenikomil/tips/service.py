@@ -55,10 +55,9 @@ class TipsService(asab.Service):
 		tip["plant_id"] = plant_id
 		return await self.upsert_tip(tip_id, tip)
 
-	async def update_plant_tip(self, plant_id, tip_id: str, tip: dict):
+	async def update_tip(self, tip_id: str, tip: dict):
 		version = tip.pop("_v")
 		tip.pop("_id", None)
-		tip["plant_id"] = plant_id
 		return await self.upsert_tip(tip_id, tip, version)
 
 	async def upsert_tip(self, tip_id: str, tip: dict, version=0):
@@ -68,9 +67,9 @@ class TipsService(asab.Service):
 		await upsertor.execute()
 		return tip_id
 
-	async def delete_tip(self, plant_id: str, tip_id: str):
+	async def delete_tip(self, tip_id: str):
 		coll = await self.StorageService.collection("tips")
-		await coll.delete_one({"_id": tip_id, "plant_id": plant_id})
+		await coll.delete_one({"_id": tip_id})
 		return tip_id
 
 	async def delete_plant_tips(self, plant_id: str):

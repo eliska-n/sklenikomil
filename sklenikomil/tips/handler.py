@@ -24,8 +24,8 @@ class TipsHandler(object):
 
 		web_app.router.add_get('/tips/plant/{plant_id}', self.list_plant_tips)
 		web_app.router.add_post('/tips/plant/{plant_id}', self.create_plant_tip)
-		web_app.router.add_post('/tips/plant/{plant_id}/{tip_id}', self.update_plant_tip)
-		web_app.router.add_delete('/tips/plant/{plant_id}/{tip_id}', self.delete_plant_tip)
+		web_app.router.add_post('/tips/{tip_id}', self.update_tip)
+		web_app.router.add_delete('/tips/{tip_id}', self.delete_tip)
 
 	async def list_greenhouse_tips(self, request):
 		raise NotImplementedError(":-(")  # TODO
@@ -75,18 +75,14 @@ class TipsHandler(object):
 		},
 		"required": ["week_from_seed", "header"],
 	})
-	async def update_plant_tip(self, request, json_data):
-		plant_id = request.match_info['plant_id']
+	async def update_tip(self, request, json_data):
 		tip_id = request.match_info['tip_id']
 		# Convert week_from_seed to integer
 		json_data["week_from_seed"] = int(json_data["week_from_seed"])
-		await self.TipsService.update_plant_tip(plant_id, tip_id, json_data)
+		await self.TipsService.update_tip(tip_id, json_data)
 		return asab.web.rest.json_response(request, {"result": "OK"})
 
-	async def delete_plant_tip(self, request):
-		plant_id = request.match_info['plant_id']
+	async def delete_tip(self, request):
 		tip_id = request.match_info['tip_id']
-		tip_id = await self.TipsService.delete_plant_tip(plant_id, tip_id)
+		tip_id = await self.TipsService.delete_tip(tip_id)
 		return asab.web.rest.json_response(request, {"result": "OK", "tip_id": tip_id})
-
-

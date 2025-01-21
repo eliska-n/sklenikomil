@@ -1,6 +1,7 @@
 import logging
 
 import asab
+from bson import ObjectId
 
 L = logging.getLogger(__name__)
 
@@ -72,6 +73,11 @@ class GreenhouseService(asab.Service):
 		upsertor.set("week_of_harvest", week_of_harvest)
 		upsertor.set("week_of_pre_grow", week_of_pre_grow)
 		return await upsertor.execute()
+
+	async def delete_planted(self, planted_id):
+		coll = await self.StorageService.collection("planted")
+		await coll.delete_one({"_id": ObjectId(planted_id)})
+		return planted_id
 
 
 
