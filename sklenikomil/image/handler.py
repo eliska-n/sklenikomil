@@ -6,6 +6,8 @@ import asab
 import asab.web
 import asab.web.rest
 
+from ..auth import verify_client
+
 ###
 
 L = logging.getLogger(__name__)
@@ -39,7 +41,7 @@ class ImageHandler(object):
 		await response.write_eof()
 		return response
 
-
+	@verify_client
 	async def handle_upload(self, request):
 		"""
 		Handle image upload using streaming

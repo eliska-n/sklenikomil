@@ -5,6 +5,7 @@ import asab.web
 import asab.web.rest
 
 from ..utils import to_greenhouse_time
+from ..auth import verify_client
 
 ###
 
@@ -45,6 +46,7 @@ class TipsHandler(object):
 		tips = await self.TipsService.list_plant_tips(plant_id)
 		return asab.web.rest.json_response(request, {"result": "OK", "data": tips})
 
+	@verify_client
 	@asab.web.rest.json_schema_handler({
 		"type": "object",
 		"properties": {
@@ -64,6 +66,7 @@ class TipsHandler(object):
 		return asab.web.rest.json_response(request, {"result": "OK"})
 
 
+	@verify_client
 	@asab.web.rest.json_schema_handler({
 		"type": "object",
 		"properties": {
@@ -82,6 +85,7 @@ class TipsHandler(object):
 		await self.TipsService.update_tip(tip_id, json_data)
 		return asab.web.rest.json_response(request, {"result": "OK"})
 
+	@verify_client
 	async def delete_tip(self, request):
 		tip_id = request.match_info['tip_id']
 		tip_id = await self.TipsService.delete_tip(tip_id)

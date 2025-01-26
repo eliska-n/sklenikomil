@@ -7,6 +7,7 @@ from .greenhouse import GreenhouseService, GreenhouseHandler
 from .herbarium import HerbariumService, HerbariumHandler
 from .tips import TipsService, TipsHandler
 from .image import ImageService, ImageHandler
+from .auth import AuthHandler
 
 
 asab.Config.add_defaults({
@@ -48,3 +49,5 @@ class SklenikomilApp(asab.Application):
 
 		self.ImageService = ImageService(self)
 		self.ImageHandler = ImageHandler(self)
+
+		self.AuthHandler = AuthHandler(self)

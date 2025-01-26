@@ -5,6 +5,7 @@ import asab.web
 import asab.web.rest
 
 from .plant_json_schema import plant_json_schema
+from ..auth import verify_client
 
 ###
 
@@ -34,20 +35,20 @@ class HerbariumHandler(object):
 		data = await self.HerbariumService.get_plant(plant_id)
 		return asab.web.rest.json_response(request, {"result": "OK", "data": data})
 
-
+	@verify_client
 	@asab.web.rest.json_schema_handler(plant_json_schema)
 	async def create_plant(self, request, json_data):
 		plant_id = await self.HerbariumService.create_plant(json_data)
 		return asab.web.rest.json_response(request, {"result": "OK", "plant_id": plant_id})
 
-
+	@verify_client
 	@asab.web.rest.json_schema_handler(plant_json_schema)
 	async def update_plant(self, request, json_data):
 		plant_id = request.match_info['plant_id']
 		await self.HerbariumService.update_plant(plant_id, json_data)
 		return asab.web.rest.json_response(request, {"result": "OK"})
 
-
+	@verify_client
 	async def delete_plant(self, request):
 		plant_id = request.match_info['plant_id']
 		await self.HerbariumService.delete_plant(plant_id)
